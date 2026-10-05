@@ -1,0 +1,6 @@
+Wednesday Addams
+
+3 years of experience developing web applications.
+
+Technical Skills:
+JS, React.js, NodeJS, Postgres, Git.

@@ -1,0 +1,6 @@
+pyformlang
+networkx
+textX
+pydot
+graphviz
+pytest

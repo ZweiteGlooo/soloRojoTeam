@@ -1,0 +1,10 @@
+# Design documentation
+1. [Literature review](01-literature-review.md)
+2. [Module design](02-module-design.md)
+3. [Formalization — regular expressions](03-regex.md)
+4. [Formalization — finite-state transducers](04-transducers.md)
+5. [Formalization — finite automata](05-automata.md)
+6. [Formalization — context-free grammar (DSL)](06-grammar.md)
+7. [Profiles](07-profiles.md)
+8. [Test cases and scenarios](08-test-cases.md)
+9. [AI usage log](ai-log/README.md)
