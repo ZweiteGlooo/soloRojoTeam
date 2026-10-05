@@ -1,0 +1,12 @@
+Peter Benjamin Parker
+peter.parker@dailybugle.com | +57 300 123 4567
+linkedin.com/in/peterparker | github.com/spidey-dev
+
+B.Sc. in Software Engineering, Empire State University.
+Master's in Data Science.
+
+4 years of experience as a backend developer building RESTful APIs.
+
+Technical Skills:
+Javascript, TypeScript, Node.js, Angular, Spring Boot, MySQL, MongoDB,
+No SQL, Docker, GitHub, Git, sklearn, Py Torch, Tensor Flow.
