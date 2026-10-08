@@ -1,4 +1,3 @@
-    """Tests for the normalization stage."""
 """Stage 2 — Test suite for qualification normalization."""
 
 import pytest
@@ -250,10 +249,9 @@ class TestNormalizationMapConsistency:
         for value in NORMALIZATION_MAP.values():
             assert value == value.upper(), f"Value {value} is not uppercase"
 
-    def test_no_duplicate_values(self):
-        """Each technology should have only one canonical form."""
-        values = list(NORMALIZATION_MAP.values())
-        assert len(values) == len(set(values)), "Duplicate normalized forms detected"
+    def test_multiple_keys_same_value_allowed(self):
+        """Multiple variations can map to the same canonical form."""
+        assert len(NORMALIZATION_MAP) > 100
 
     def test_table_has_minimum_coverage(self):
         """Ensure table has ~120 entries (within 10% tolerance)."""
@@ -285,7 +283,6 @@ class TestEdgeCases:
         assert normalize_skill("machine-learning") == "MACHINE_LEARNING"
         assert normalize_skill("py torch") == "PYTORCH"
         assert normalize_skill("py-torch") == "PYTORCH"
-        assert normalize_skill("py torch") == "PYTORCH"
 
     def test_punctuation_variations(self):
         assert normalize_skill("react.js") == "REACT"
