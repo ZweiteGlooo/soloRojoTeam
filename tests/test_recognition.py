@@ -147,3 +147,18 @@ class TestSampleResumes:
         # no Python, so the ML libraries he lists are not enough for ML Engineer
         assert self.profiles_of("peter_parker") == ["Full Stack Developer", "Backend Developer"]
 
+
+class TestDiagrams:
+    def test_dot_groups_edges_by_block(self):
+        from resumelens.recognition import to_dot
+        dot = to_dot("FULL_STACK_DEVELOPER")
+        assert dot.startswith('digraph "FULL_STACK_DEVELOPER"')
+        assert '"VCS" [shape=doublecircle];' in dot
+        assert '"DATABASE" -> "API" [label="API"];' in dot
+        assert "REACT" not in dot  # one arrow per block, not per framework
+
+    def test_export_writes_one_file_per_profile(self, tmp_path):
+        from resumelens.recognition import export_diagrams
+        paths = export_diagrams(str(tmp_path))
+        assert len(paths) == 4
+        assert all(p.endswith(".dot") for p in paths)

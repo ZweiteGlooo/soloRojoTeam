@@ -1,0 +1,20 @@
+digraph "MACHINE_LEARNING_ENGINEER" {
+  rankdir=LR;
+  node [shape=circle];
+  start [shape=point];
+  "VCS" [shape=doublecircle];
+  start -> "q0";
+  "q0" -> "LANGUAGE" [label="LANGUAGE"];
+  "LANGUAGE" -> "LANGUAGE" [label="LANGUAGE"];
+  "LANGUAGE" -> "DATA_LIBRARY" [label="DATA_LIBRARY"];
+  "DATA_LIBRARY" -> "DATA_LIBRARY" [label="DATA_LIBRARY"];
+  "DATA_LIBRARY" -> "ML_LIBRARY" [label="ML_LIBRARY"];
+  "ML_LIBRARY" -> "ML_LIBRARY" [label="ML_LIBRARY"];
+  "ML_LIBRARY" -> "ML_PRACTICE" [label="ML_PRACTICE"];
+  "ML_LIBRARY" -> "DATABASE" [label="DATABASE"];
+  "ML_PRACTICE" -> "ML_PRACTICE" [label="ML_PRACTICE"];
+  "ML_PRACTICE" -> "DATABASE" [label="DATABASE"];
+  "DATABASE" -> "DATABASE" [label="DATABASE"];
+  "DATABASE" -> "VCS" [label="VCS"];
+  "VCS" -> "VCS" [label="VCS"];
+}

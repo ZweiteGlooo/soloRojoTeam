@@ -1,0 +1,20 @@
+digraph "BACKEND_DEVELOPER" {
+  rankdir=LR;
+  node [shape=circle];
+  start [shape=point];
+  "VCS" [shape=doublecircle];
+  start -> "q0";
+  "q0" -> "LANGUAGE" [label="LANGUAGE"];
+  "LANGUAGE" -> "LANGUAGE" [label="LANGUAGE"];
+  "LANGUAGE" -> "FRAMEWORK" [label="FRAMEWORK"];
+  "FRAMEWORK" -> "FRAMEWORK" [label="FRAMEWORK"];
+  "FRAMEWORK" -> "API" [label="API"];
+  "API" -> "API" [label="API"];
+  "API" -> "DATABASE" [label="DATABASE"];
+  "DATABASE" -> "DATABASE" [label="DATABASE"];
+  "DATABASE" -> "DEVOPS" [label="DEVOPS"];
+  "DATABASE" -> "VCS" [label="VCS"];
+  "DEVOPS" -> "DEVOPS" [label="DEVOPS"];
+  "DEVOPS" -> "VCS" [label="VCS"];
+  "VCS" -> "VCS" [label="VCS"];
+}

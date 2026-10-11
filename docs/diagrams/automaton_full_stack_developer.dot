@@ -1,0 +1,20 @@
+digraph "FULL_STACK_DEVELOPER" {
+  rankdir=LR;
+  node [shape=circle];
+  start [shape=point];
+  "VCS" [shape=doublecircle];
+  start -> "q0";
+  "q0" -> "LANGUAGE" [label="LANGUAGE"];
+  "LANGUAGE" -> "LANGUAGE" [label="LANGUAGE"];
+  "LANGUAGE" -> "FRONTEND" [label="FRONTEND"];
+  "FRONTEND" -> "FRONTEND" [label="FRONTEND"];
+  "FRONTEND" -> "BACKEND" [label="BACKEND"];
+  "BACKEND" -> "BACKEND" [label="BACKEND"];
+  "BACKEND" -> "DATABASE" [label="DATABASE"];
+  "DATABASE" -> "DATABASE" [label="DATABASE"];
+  "DATABASE" -> "API" [label="API"];
+  "DATABASE" -> "VCS" [label="VCS"];
+  "API" -> "API" [label="API"];
+  "API" -> "VCS" [label="VCS"];
+  "VCS" -> "VCS" [label="VCS"];
+}

@@ -168,6 +168,41 @@ def accepted_profiles(normalized_skills: List[str]) -> List[str]:
     return [r.title for r in recognize_all(normalized_skills) if r.accepted]
 
 
+# ---------------------------------------------------------------------------
+# Diagrams
+# ---------------------------------------------------------------------------
+
+def to_dot(profile: str) -> str:
+    """
+    Graphviz source of the DFA. Edges are grouped by block (one arrow labelled
+    FRONTEND instead of one arrow per framework), otherwise the drawing is
+    unreadable. The trap state is omitted.
+    """
+    pattern = get_pattern(profile)
+    edges = {}
+    for (src, skill), dst in transition_table(pattern).items():
+        edges.setdefault((src, dst), pattern.blocks[pattern.block_of(skill)].name)
+    lines = [f'digraph "{pattern.key}" {{', "  rankdir=LR;", '  node [shape=circle];',
+             '  start [shape=point];']
+    lines += [f'  "{name}" [shape=doublecircle];' for name in accepting_states(pattern)]
+    lines.append(f'  start -> "{START}";')
+    lines += [f'  "{src}" -> "{dst}" [label="{label}"];' for (src, dst), label in edges.items()]
+    lines.append("}")
+    return "\n".join(lines) + "\n"
+
+
+def export_diagrams(directory: str = "docs/diagrams") -> List[str]:
+    """Write one .dot file per profile (render with: dot -Tpng file.dot -o file.png)."""
+    from pathlib import Path
+
+    paths = []
+    for key in PATTERNS:
+        path = Path(directory) / f"automaton_{key.lower()}.dot"
+        path.write_text(to_dot(key), encoding="utf-8")
+        paths.append(str(path))
+    return paths
+
+
 if __name__ == "__main__":
     for r in recognize_all(["PYTHON", "PANDAS", "TENSORFLOW", "POSTGRESQL", "GIT"]):
         print(f"{r.title:28} {r.result:9} {' '.join(r.word)}")

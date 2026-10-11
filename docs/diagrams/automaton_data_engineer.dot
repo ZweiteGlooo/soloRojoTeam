@@ -1,0 +1,21 @@
+digraph "DATA_ENGINEER" {
+  rankdir=LR;
+  node [shape=circle];
+  start [shape=point];
+  "VCS" [shape=doublecircle];
+  start -> "q0";
+  "q0" -> "LANGUAGE" [label="LANGUAGE"];
+  "LANGUAGE" -> "LANGUAGE" [label="LANGUAGE"];
+  "LANGUAGE" -> "PROCESSING" [label="PROCESSING"];
+  "PROCESSING" -> "PROCESSING" [label="PROCESSING"];
+  "PROCESSING" -> "PIPELINES" [label="PIPELINES"];
+  "PROCESSING" -> "DATABASE" [label="DATABASE"];
+  "PIPELINES" -> "PIPELINES" [label="PIPELINES"];
+  "PIPELINES" -> "DATABASE" [label="DATABASE"];
+  "DATABASE" -> "DATABASE" [label="DATABASE"];
+  "DATABASE" -> "CLOUD" [label="CLOUD"];
+  "DATABASE" -> "VCS" [label="VCS"];
+  "CLOUD" -> "CLOUD" [label="CLOUD"];
+  "CLOUD" -> "VCS" [label="VCS"];
+  "VCS" -> "VCS" [label="VCS"];
+}
