@@ -10,7 +10,7 @@
 |------|-----------|-------------|
 | Gloribeth Renteria | A00 | ZweiteGlooo |
 | Valentina Tangarife | A00411935 | valentangarife |
-| Dayanna Fernández Núñez | | Dayanna-Fernandez |
+| Dayanna Fernández Núñez | A00403756| Dayanna-Fernandez |
 
 ---
 
