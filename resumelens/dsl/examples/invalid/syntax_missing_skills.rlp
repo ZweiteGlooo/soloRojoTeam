@@ -1,0 +1,7 @@
+// Syntax error: the skills section is mandatory and must come before profiles
+candidate "Wednesday Addams" {
+    experience { 3 years "developing web applications" }
+    profiles {
+        FULL_STACK_DEVELOPER: REJECTED
+    }
+}

@@ -1,0 +1,12 @@
+candidate "Wednesday Addams" {
+    experience {
+        3 years "developing web applications"
+    }
+    skills { JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT }
+    profiles {
+        FULL_STACK_DEVELOPER: ACCEPTED [JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT]
+        MACHINE_LEARNING_ENGINEER: REJECTED missing [LANGUAGE, DATA_LIBRARY, ML_LIBRARY]
+        BACKEND_DEVELOPER: REJECTED missing [API]
+        DATA_ENGINEER: REJECTED missing [LANGUAGE, PROCESSING]
+    }
+}

@@ -1,0 +1,7 @@
+// Lexical error: skills must be canonical (uppercase) qualifications
+candidate "Mary Jane Watson" {
+    skills { python, PANDAS, TENSORFLOW, SQL, GIT }
+    profiles {
+        MACHINE_LEARNING_ENGINEER: REJECTED
+    }
+}

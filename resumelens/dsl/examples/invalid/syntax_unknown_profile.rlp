@@ -1,0 +1,7 @@
+// Syntax error: only the four supported profiles can be reported
+candidate "Wednesday Addams" {
+    skills { JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT }
+    profiles {
+        WEB_DESIGNER: ACCEPTED [JAVASCRIPT, REACT]
+    }
+}

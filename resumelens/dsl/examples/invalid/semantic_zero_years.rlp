@@ -1,0 +1,8 @@
+// Semantic error: years of experience must be a positive number
+candidate "Wednesday Addams" {
+    experience { 0 years "developing web applications" }
+    skills { JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT }
+    profiles {
+        FULL_STACK_DEVELOPER: ACCEPTED [JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT]
+    }
+}

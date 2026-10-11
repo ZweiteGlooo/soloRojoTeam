@@ -1,0 +1,7 @@
+// Syntax error: an ACCEPTED result must include the word read by the automaton
+candidate "Wednesday Addams" {
+    skills { JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT }
+    profiles {
+        FULL_STACK_DEVELOPER: ACCEPTED
+    }
+}

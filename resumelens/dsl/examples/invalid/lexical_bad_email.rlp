@@ -1,0 +1,8 @@
+// Lexical error: the email has no domain, it does not match the Email terminal
+candidate "Wednesday Addams" {
+    contact { email wednesday@ }
+    skills { JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT }
+    profiles {
+        FULL_STACK_DEVELOPER: ACCEPTED [JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT]
+    }
+}

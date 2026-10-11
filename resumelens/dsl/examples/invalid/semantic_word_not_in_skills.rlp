@@ -1,0 +1,7 @@
+// Semantic error: the accepted word uses PYTORCH, which is not in the skills section
+candidate "Mary Jane Watson" {
+    skills { PYTHON, PANDAS, TENSORFLOW, SQL, GIT }
+    profiles {
+        MACHINE_LEARNING_ENGINEER: ACCEPTED [PYTHON, PANDAS, PYTORCH, SQL, GIT]
+    }
+}

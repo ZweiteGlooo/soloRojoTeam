@@ -1,0 +1,22 @@
+candidate "Peter Benjamin Parker" {
+    contact {
+        email peter.parker@dailybugle.com
+        phone +57 300 123 4567
+        linkedin linkedin.com/in/peterparker
+        github github.com/spidey-dev
+    }
+    education {
+        degree "B.Sc." in "Software Engineering, Empire State University"
+        degree "Master's" in "Data Science"
+    }
+    experience {
+        4 years "a backend developer building RESTful APIs"
+    }
+    skills { REST, JAVASCRIPT, TYPESCRIPT, NODE_JS, ANGULAR, SPRING_BOOT, MYSQL, MONGODB, NOSQL, DOCKER, GITHUB, GIT, SCIKIT_LEARN, PYTORCH, TENSORFLOW }
+    profiles {
+        FULL_STACK_DEVELOPER: ACCEPTED [JAVASCRIPT, TYPESCRIPT, ANGULAR, NODE_JS, SPRING_BOOT, MYSQL, MONGODB, NOSQL, REST, GIT, GITHUB]
+        MACHINE_LEARNING_ENGINEER: REJECTED missing [LANGUAGE, DATA_LIBRARY]
+        BACKEND_DEVELOPER: ACCEPTED [JAVASCRIPT, TYPESCRIPT, NODE_JS, SPRING_BOOT, REST, MYSQL, MONGODB, NOSQL, DOCKER, GIT, GITHUB]
+        DATA_ENGINEER: REJECTED missing [LANGUAGE, PROCESSING]
+    }
+}

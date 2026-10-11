@@ -1,1 +1,88 @@
 // ResumeLens candidate profile grammar (textX)
+//
+// A profile describes one candidate after the pipeline: personal and contact
+// data (Stage 1), normalized skills (Stage 2) and the result of every profile
+// automaton (Stage 3). Example:
+//
+//   candidate "Wednesday Addams" {
+//       contact { email wednesday@nevermore.edu }
+//       experience { 3 years "developing web applications" }
+//       skills { JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT }
+//       profiles {
+//           FULL_STACK_DEVELOPER: ACCEPTED [JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT]
+//           MACHINE_LEARNING_ENGINEER: REJECTED missing [LANGUAGE, DATA_LIBRARY, ML_LIBRARY]
+//       }
+//   }
+
+CandidateProfile:
+    'candidate' name=STRING '{'
+        contact=Contact?
+        education=Education?
+        experience=Experience?
+        skills=Skills
+        profiles=Classification
+    '}'
+;
+
+// ---- contact -------------------------------------------------------------
+Contact:
+    'contact' '{' items+=ContactItem '}'
+;
+
+ContactItem:
+    EmailItem | PhoneItem | LinkItem
+;
+
+EmailItem:  kind='email' value=Email;
+PhoneItem:  kind='phone' value=Phone;
+LinkItem:   kind=LinkKind value=Url;
+
+LinkKind:   'linkedin' | 'github';
+
+// ---- education and experience ---------------------------------------------
+Education:
+    'education' '{' records+=Degree '}'
+;
+
+Degree:
+    'degree' title=STRING ('in' field=STRING)?
+;
+
+Experience:
+    'experience' '{' jobs+=Job '}'
+;
+
+Job:
+    years=INT YearUnit description=STRING
+;
+
+YearUnit:   'years' | 'year';
+
+// ---- skills and classification -------------------------------------------
+Skills:
+    'skills' '{' items*=Skill[','] '}'
+;
+
+Classification:
+    'profiles' '{' results+=Result '}'
+;
+
+Result:
+    profile=ProfileKey ':' (
+        status='ACCEPTED' '[' word+=Skill[','] ']'
+      | status='REJECTED' ('missing' '[' missing+=BlockName[','] ']')?
+    )
+;
+
+ProfileKey:
+    'FULL_STACK_DEVELOPER' | 'MACHINE_LEARNING_ENGINEER' | 'BACKEND_DEVELOPER' | 'DATA_ENGINEER'
+;
+
+// ---- terminals (lexical rules) --------------------------------------------
+Skill:      /[A-Z][A-Z0-9]*(_[A-Z0-9]+)*/;
+BlockName:  /[A-Z][A-Z_]*/;
+Email:      /[\w.%+-]+@[\w-]+(\.[\w-]+)+/;
+Phone:      /\+?\d[\d -]{5,}\d/;
+Url:        /(https?:\/\/)?(www\.)?(linkedin|github)\.com\/(in\/)?[\w-]+/;
+
+Comment:    /\/\/.*$/;

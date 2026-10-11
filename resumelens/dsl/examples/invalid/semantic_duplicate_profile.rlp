@@ -1,0 +1,8 @@
+// Semantic error: well formed, but the same profile is reported twice
+candidate "Peter Benjamin Parker" {
+    skills { JAVA, SPRING_BOOT, REST, MYSQL, GIT }
+    profiles {
+        BACKEND_DEVELOPER: ACCEPTED [JAVA, SPRING_BOOT, REST, MYSQL, GIT]
+        BACKEND_DEVELOPER: REJECTED missing [API]
+    }
+}

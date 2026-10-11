@@ -1,0 +1,12 @@
+candidate "Mary Jane Watson" {
+    experience {
+        2 years "developing predictive models and data-processing pipelines"
+    }
+    skills { PYTHON, PANDAS, NUMPY, SCIKIT_LEARN, TENSORFLOW, SQL, GIT }
+    profiles {
+        FULL_STACK_DEVELOPER: REJECTED missing [LANGUAGE, FRONTEND, BACKEND]
+        MACHINE_LEARNING_ENGINEER: ACCEPTED [PYTHON, PANDAS, NUMPY, SCIKIT_LEARN, TENSORFLOW, SQL, GIT]
+        BACKEND_DEVELOPER: REJECTED missing [FRAMEWORK, API]
+        DATA_ENGINEER: REJECTED missing [PROCESSING]
+    }
+}
