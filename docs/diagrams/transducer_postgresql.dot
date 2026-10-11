@@ -1,0 +1,38 @@
+digraph {
+"q[postgre]" [is_start=False, is_final=False, peripheries=1, label="q[postgre]"];
+"q[post]" [is_start=False, is_final=False, peripheries=1, label="q[post]"];
+q0 [is_start=True, is_final=False, peripheries=1, label=q0];
+starting_q0 [label="", shape=None, height=0.0, width=0.0];
+"q[postgres]" [is_start=False, is_final=False, peripheries=1, label="q[postgres]"];
+"q[po]" [is_start=False, is_final=False, peripheries=1, label="q[po]"];
+"q[p]" [is_start=False, is_final=False, peripheries=1, label="q[p]"];
+"q[postg]" [is_start=False, is_final=False, peripheries=1, label="q[postg]"];
+"q[pos]" [is_start=False, is_final=False, peripheries=1, label="q[pos]"];
+q_accept [is_start=False, is_final=True, peripheries=2, label="q_accept"];
+"q[postgr]" [is_start=False, is_final=False, peripheries=1, label="q[postgr]"];
+"q[postgresql]" [is_start=False, is_final=False, peripheries=1, label="q[postgresql]"];
+"q[postgresq]" [is_start=False, is_final=False, peripheries=1, label="q[postgresq]"];
+"q[postgre]" -> "q[postgres]" [key=0, label="\"S\" -> []"];
+"q[postgre]" -> "q[postgres]" [key=1, label="\"s\" -> []"];
+"q[post]" -> "q[postg]" [key=0, label="\"g\" -> []"];
+"q[post]" -> "q[postg]" [key=1, label="\"G\" -> []"];
+q0 -> "q[p]" [key=0, label="\"p\" -> []"];
+q0 -> "q[p]" [key=1, label="\"P\" -> []"];
+starting_q0 -> q0 [key=0];
+"q[postgres]" -> q_accept [key=0, label="\"epsilon\" -> [\"POSTGRESQL\"]"];
+"q[postgres]" -> "q[postgresq]" [key=0, label="\"Q\" -> []"];
+"q[postgres]" -> "q[postgresq]" [key=1, label="\"q\" -> []"];
+"q[po]" -> "q[pos]" [key=0, label="\"S\" -> []"];
+"q[po]" -> "q[pos]" [key=1, label="\"s\" -> []"];
+"q[p]" -> "q[po]" [key=0, label="\"O\" -> []"];
+"q[p]" -> "q[po]" [key=1, label="\"o\" -> []"];
+"q[postg]" -> "q[postgr]" [key=0, label="\"R\" -> []"];
+"q[postg]" -> "q[postgr]" [key=1, label="\"r\" -> []"];
+"q[pos]" -> "q[post]" [key=0, label="\"t\" -> []"];
+"q[pos]" -> "q[post]" [key=1, label="\"T\" -> []"];
+"q[postgr]" -> "q[postgre]" [key=0, label="\"e\" -> []"];
+"q[postgr]" -> "q[postgre]" [key=1, label="\"E\" -> []"];
+"q[postgresql]" -> q_accept [key=0, label="\"epsilon\" -> [\"POSTGRESQL\"]"];
+"q[postgresq]" -> "q[postgresql]" [key=0, label="\"l\" -> []"];
+"q[postgresq]" -> "q[postgresql]" [key=1, label="\"L\" -> []"];
+}

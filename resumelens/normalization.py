@@ -1,52 +1,78 @@
-#2A
-from typing import List, Tuple, Dict, Set
+"""Stage 2 — Qualification normalization with finite-state transducers (pyformlang).
+
+Every equivalence class of spellings is a finite-state transducer
+M = (Q, Σ, Γ, δ, ω, q0, F) built with ``pyformlang.fst.FST``:
+
+* Q  — one state per prefix of a spelling (a trie), plus the accepting state.
+* Σ  — the characters of the spellings, in lower and upper case
+       (the machine itself does the case folding: δ(q, 'j') = δ(q, 'J')).
+* Γ  — the canonical tokens (JAVASCRIPT, REACT, ...).
+* δ  — reading a character moves to the state of the longer prefix;
+       from the state of a complete spelling an ε-move goes to q_accept.
+* ω  — every character transition writes ε (nothing); the final ε-move
+       writes the canonical token. So "React.js" ↦ REACT.
+* q0 — the empty prefix.   F = {q_accept}.
+
+``TRANSDUCERS`` holds one transducer per canonical qualification (these are the
+machines documented and drawn in docs/04-transducers.md). ``NORMALIZER`` is
+their union, a single deterministic FST used at run time by ``normalize_skill``.
+A spelling that the FST does not accept has no translation and is reported
+as unknown.
+"""
+from collections import defaultdict
+from typing import Dict, Iterable, List, Set, Tuple
+
+from pyformlang.fst import FST
+
+EPSILON = "epsilon"          # pyformlang's input symbol for ε-moves
+START, ACCEPT = "q0", "q_accept"
 
 
 class QualificationTransducer:
-    """Finite-state transducer M = (Q, Σ, Γ, δ, ω, q0, F) for skill normalization."""
+    """Generic FST M = (Q, Σ, Γ, δ, ω, q0, F) given as a transition table.
 
-    def __init__(self, name: str, transitions: Dict[Tuple[str, str], Tuple[str, str]]):
-        """Initialize FST with name and transition table."""
+    ``transitions`` maps (state, input_char) -> (next_state, output_string).
+    The table is loaded into a ``pyformlang.fst.FST``; ``process`` runs
+    pyformlang's ``translate``.
+    """
+
+    def __init__(self, name: str, transitions: Dict[Tuple[str, str], Tuple[str, str]],
+                 initial: str = START, accepting: Iterable[str] = (ACCEPT,)):
         self.name = name
         self.transitions = transitions
-        self.states: Set[str] = set()
-        self.alphabet_in: Set[str] = set()
-        self.alphabet_out: Set[str] = set()
-        self.initial = "q0"
-        self.accepting = {"q_accept"}
+        self.initial = initial
+        self.accepting: Set[str] = set(accepting)
 
-        for (state, inp), (next_state, out) in transitions.items():
-            self.states.add(state)
-            self.states.add(next_state)
-            self.alphabet_in.add(inp)
-            for char in out:
-                self.alphabet_out.add(char)
+        self.fst = FST()
+        self.fst.add_start_state(initial)
+        for state in self.accepting:
+            self.fst.add_final_state(state)
+        for (state, symbol), (next_state, out) in transitions.items():
+            self.fst.add_transition(state, symbol, next_state, list(out))
+
+    @property
+    def states(self) -> Set[str]:
+        return set(self.fst.states)
+
+    @property
+    def alphabet_in(self) -> Set[str]:
+        return set(self.fst.input_symbols) - {EPSILON}
+
+    @property
+    def alphabet_out(self) -> Set[str]:
+        return set(self.fst.output_symbols)
 
     def formal_definition(self) -> Dict:
-        """Return 7-tuple formal definition (Q, Σ, Γ, δ, ω, q0, F)."""
-        return {
-            "name": self.name,
-            "Q": self.states,
-            "Σ": self.alphabet_in,
-            "Γ": self.alphabet_out,
-            "δ": {k: v[0] for k, v in self.transitions.items()},
-            "ω": {k: v[1] for k, v in self.transitions.items()},
-            "q0": self.initial,
-            "F": self.accepting,
-        }
+        """Return the 7-tuple (Q, Σ, Γ, δ, ω, q0, F) read from the pyformlang FST."""
+        return _formal_definition(self.name, self.fst)
 
     def process(self, input_str: str) -> Tuple[bool, str]:
-        """Process input string through FST. Returns (accepted: bool, output: str)."""
-        current_state = self.initial
-        output = ""
-        for char in input_str.lower():
-            key = (current_state, char)
-            if key not in self.transitions:
-                return False, ""
-            next_state, out_chars = self.transitions[key]
-            current_state = next_state
-            output += out_chars
-        return (current_state in self.accepting, output)
+        """Translate ``input_str`` (case-insensitive). Returns (accepted, output)."""
+        outputs = list(self.fst.translate(list(input_str.lower())))
+        if not outputs:
+            return False, ""
+        return True, "".join(outputs[0])
+
 
 NORMALIZATION_MAP: Dict[str, str] = {
     # Programming languages
@@ -188,23 +214,123 @@ NORMALIZATION_MAP: Dict[str, str] = {
 }
 
 
+def _formal_definition(name: str, fst: FST) -> Dict:
+    delta, omega = {}, {}
+    for (state, symbol), moves in fst.transitions.items():
+        for next_state, out in moves:
+            key = (state, "ε" if symbol == EPSILON else symbol)
+            delta[key] = next_state
+            omega[key] = "".join(out) or "ε"
+    return {
+        "name": name,
+        "Q": set(fst.states),
+        "Σ": set(fst.input_symbols) - {EPSILON},
+        "Γ": set(fst.output_symbols),
+        "δ": delta,
+        "ω": omega,
+        "q0": next(iter(fst.start_states)),
+        "F": set(fst.final_states),
+    }
+
+
+def _state(prefix: str) -> str:
+    return START if prefix == "" else f"q[{prefix}]"
+
+
+def build_transducer(spellings: Iterable[str], canonical_of) -> FST:
+    """Trie-shaped FST that reads any of ``spellings`` and writes its canonical token.
+
+    ``canonical_of(spelling)`` gives the token written by the final ε-move.
+    Upper- and lower-case versions of every letter share the same transition.
+    """
+    fst = FST()
+    fst.add_start_state(START)
+    fst.add_final_state(ACCEPT)
+    added = set()                                   # shared prefixes add each move once
+    for spelling in spellings:
+        for i, char in enumerate(spelling):
+            source, target = _state(spelling[:i]), _state(spelling[:i + 1])
+            for symbol in {char, char.upper()}:
+                if (source, symbol) not in added:
+                    added.add((source, symbol))
+                    fst.add_transition(source, symbol, target, [])
+        fst.add_transition(_state(spelling), EPSILON, ACCEPT, [canonical_of(spelling)])
+    return fst
+
+
+def _group_by_canonical(table: Dict[str, str]) -> Dict[str, List[str]]:
+    groups: Dict[str, List[str]] = defaultdict(list)
+    for spelling, canonical in table.items():
+        groups[canonical].append(spelling)
+    return dict(groups)
+
+
+# One transducer per canonical qualification (documented and drawn) ...
+TRANSDUCERS: Dict[str, FST] = {
+    canonical: build_transducer(spellings, lambda s, c=canonical: c)
+    for canonical, spellings in _group_by_canonical(NORMALIZATION_MAP).items()
+}
+
+# ... and their union, the deterministic FST used at run time.
+NORMALIZER: FST = build_transducer(NORMALIZATION_MAP, NORMALIZATION_MAP.__getitem__)
+
+
+def formal_definition(canonical: str) -> Dict:
+    """7-tuple of the transducer that writes ``canonical``."""
+    return _formal_definition(canonical, TRANSDUCERS[canonical])
+
+
+def translate(skill: str, fst: FST = NORMALIZER) -> List[str]:
+    """All outputs of ``fst`` for ``skill`` (empty list = not accepted)."""
+    return ["".join(out) for out in fst.translate(list(skill))]
+
+
+def to_mermaid(canonical: str) -> str:
+    """Mermaid state diagram of a transducer (labels are input : output)."""
+    fst = TRANSDUCERS[canonical]
+    edges: Dict[Tuple[str, str], Tuple[List[str], str]] = {}
+    for (state, symbol), moves in fst.transitions.items():
+        for next_state, out in moves:
+            if symbol != EPSILON and symbol != symbol.lower():
+                continue                      # drawn together with its lower-case twin
+            shown = "␣" if symbol == " " else symbol
+            label = "ε" if symbol == EPSILON else (
+                f"{shown}|{symbol.upper()}" if symbol.upper() != symbol else shown)
+            edges[(state, next_state)] = (edges.get((state, next_state), ([], ""))[0] + [label],
+                                          "".join(out) or "ε")
+    ids = {s: f"s{i}" for i, s in enumerate(sorted(fst.states, key=lambda s: (s != START, len(s), s)))}
+    lines = ["stateDiagram-v2", "    direction LR"]
+    for state, sid in ids.items():
+        lines.append(f'    state "{state}" as {sid}')
+    lines.append(f"    [*] --> {ids[START]}")
+    for (src, dst), (labels, out) in edges.items():
+        text = ", ".join(labels).replace(":", "#58;")
+        lines.append(f"    {ids[src]} --> {ids[dst]} : {text} / {out}")
+    lines.append(f"    {ids[ACCEPT]} --> [*]")
+    return "\n".join(lines)
+
+
+def write_dot(canonical: str, path) -> None:
+    """Graphviz file of a transducer (pyformlang ``write_as_dot``)."""
+    TRANSDUCERS[canonical].write_as_dot(str(path))
+
+
 def normalize_skill(skill: str) -> str:
-    """Normalize single skill to canonical form. Raises ValueError if unknown."""
-    normalized = NORMALIZATION_MAP.get(skill.lower())
-    if normalized is None:
+    """Canonical form of ``skill`` computed by the FST. Raises ValueError if unknown."""
+    outputs = translate(skill)
+    if not outputs:
         raise ValueError(f"Unknown skill: {skill}")
-    return normalized
+    return outputs[0]
 
 
 def normalize_skills(raw_skills: List[str]) -> List[str]:
-    """Normalize list of skills, preserving order. Raises on first unknown."""
+    """Normalize a list of skills, preserving order. Raises on the first unknown."""
     return [normalize_skill(skill) for skill in raw_skills]
 
 
 def normalize_skills_safe(raw_skills: List[str]) -> Tuple[List[str], List[str]]:
-    """Normalize skills gracefully. Returns (normalized, unknown)."""
-    normalized = []
-    unknown = []
+    """Normalize skills without raising. Returns (normalized, unknown)."""
+    normalized, unknown = [], []
     for skill in raw_skills:
         try:
             normalized.append(normalize_skill(skill))
@@ -213,13 +339,7 @@ def normalize_skills_safe(raw_skills: List[str]) -> Tuple[List[str], List[str]]:
     return normalized, unknown
 
 
-# Stage 3 — Pattern recognition with finite automata
-# For each profile: M = (Q, Σ, δ, q0, F) matching normalized skills against acceptance criteria.
-# Classification: Full Stack Developer, ML Engineer, Backend Engineer, Data Engineer.
-
-
 if __name__ == "__main__":
     raw = ["JS", "React.js", "NodeJS", "Postgres", "Git"]
-    normalized = normalize_skills(raw)
     print(f"Raw:        {raw}")
-    print(f"Normalized: {normalized}")
+    print(f"Normalized: {normalize_skills(raw)}")

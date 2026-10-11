@@ -350,3 +350,50 @@ class TestIntegrationWithStage1:
         assert all(
             isinstance(skill, str) and skill == skill.upper() for skill in normalized
         )
+
+
+class TestPyformlangTransducers:
+    """Stage 2 runs on pyformlang FSTs, not on a dictionary lookup."""
+
+    def test_normalizer_is_a_pyformlang_fst(self):
+        from pyformlang.fst import FST
+        from resumelens.normalization import NORMALIZER, TRANSDUCERS
+        assert isinstance(NORMALIZER, FST)
+        assert all(isinstance(t, FST) for t in TRANSDUCERS.values())
+
+    def test_one_transducer_per_canonical_qualification(self):
+        from resumelens.normalization import TRANSDUCERS
+        assert set(TRANSDUCERS) == set(NORMALIZATION_MAP.values())
+
+    def test_each_transducer_translates_exactly_its_spellings(self):
+        from resumelens.normalization import TRANSDUCERS, translate
+        for spelling, canonical in NORMALIZATION_MAP.items():
+            assert translate(spelling, TRANSDUCERS[canonical]) == [canonical]
+            assert translate(spelling.upper(), TRANSDUCERS[canonical]) == [canonical]
+        assert translate("python", TRANSDUCERS["JAVASCRIPT"]) == []
+
+    def test_normalizer_is_deterministic(self):
+        from resumelens.normalization import NORMALIZER
+        assert all(len(moves) == 1 for moves in NORMALIZER.transitions.values())
+
+    def test_case_folding_is_done_by_the_transducer(self):
+        from resumelens.normalization import formal_definition
+        d = formal_definition("JAVASCRIPT")
+        assert {"j", "J", "s", "S"} <= d["Σ"]
+        assert d["δ"][("q0", "j")] == d["δ"][("q0", "J")] == "q[j]"
+
+    def test_formal_definition_of_javascript(self):
+        from resumelens.normalization import formal_definition
+        d = formal_definition("JAVASCRIPT")
+        assert d["q0"] == "q0"
+        assert d["F"] == {"q_accept"}
+        assert d["Γ"] == {"JAVASCRIPT"}
+        assert d["ω"][("q[js]", "ε")] == "JAVASCRIPT"
+        assert d["ω"][("q0", "j")] == "ε"
+        assert d["δ"][("q[javascript]", "ε")] == "q_accept"
+
+    def test_diagrams_can_be_generated(self, tmp_path):
+        from resumelens.normalization import to_mermaid, write_dot
+        assert "ε / REACT" in to_mermaid("REACT")
+        write_dot("REACT", tmp_path / "react.dot")
+        assert (tmp_path / "react.dot").read_text(encoding="utf-8").strip()
