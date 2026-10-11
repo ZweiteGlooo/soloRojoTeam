@@ -137,6 +137,9 @@ NORMALIZATION_MAP: Dict[str, str] = {
     "cassandra": "CASSANDRA",
     "elasticsearch": "ELASTICSEARCH",
     "elastic-search": "ELASTICSEARCH",
+    "nosql": "NOSQL",
+    "no sql": "NOSQL",
+    "no-sql": "NOSQL",
 
     # Tools & platforms
     "git": "GIT",
@@ -159,6 +162,9 @@ NORMALIZATION_MAP: Dict[str, str] = {
     "rest": "REST",
     "restful": "REST",
     "rest api": "REST",
+    "rest apis": "REST",
+    "restful api": "REST",
+    "restful apis": "REST",
     "graphql": "GRAPHQL",
     "graph-ql": "GRAPHQL",
     "grpc": "GRPC",

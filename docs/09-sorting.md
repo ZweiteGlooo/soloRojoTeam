@@ -62,3 +62,33 @@ Candidates are classified into 4 tiers based on profile score:
 ## Notation
 
 **Formal Definition:**
+---
+
+## Canonical ordering of qualifications
+
+Besides ranking, Stage 2 must hand Stage 3 the qualifications in an order that
+does **not** depend on how the candidate wrote the résumé. Each profile defines
+that order through its pattern (`resumelens/patterns.py`): an ordered list of
+blocks, each one required (`+`) or optional (`*`).
+
+| Profile | Block order |
+|---|---|
+| Full Stack Developer | `LANGUAGE+ FRONTEND+ BACKEND+ DATABASE+ API* VCS+` |
+| Machine Learning Engineer | `LANGUAGE+ DATA_LIBRARY+ ML_LIBRARY+ ML_PRACTICE* DATABASE+ VCS+` |
+| Backend Developer (team) | `LANGUAGE+ FRAMEWORK+ API+ DATABASE+ DEVOPS* VCS+` |
+| Data Engineer (team) | `LANGUAGE+ PROCESSING+ PIPELINES* DATABASE+ CLOUD* VCS+` |
+
+`canonical_order(skills, profile)`:
+
+1. keeps only the qualifications that belong to the profile alphabet Σ,
+2. removes duplicates,
+3. sorts them by their position in Σ (block first, then position inside the block).
+
+```
+Git, NodeJS, JS, Postgres, React.js            (résumé)
+GIT, NODE_JS, JAVASCRIPT, POSTGRESQL, REACT    (Stage 2 normalization)
+JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT    (canonical order, Full Stack)
+```
+
+`canonical_orders(skills)` returns the sequence for the four profiles at once;
+each sequence is the input word of the corresponding automaton in Stage 3.

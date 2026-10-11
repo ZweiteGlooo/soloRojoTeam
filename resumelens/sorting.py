@@ -1,6 +1,12 @@
-"""Stage 2C — Candidate ranking and tiering based on profile scores."""
+"""Stage 2C — Candidate ranking and tiering based on profile scores.
+
+Also holds the canonical ordering of normalized qualifications that feeds the
+recognition automata (Stage 3).
+"""
 from typing import List, Tuple, Dict, TYPE_CHECKING
 from dataclasses import dataclass
+
+from resumelens.patterns import PATTERNS, get_pattern
 
 if TYPE_CHECKING:
     from resumelens.profiles import Profile
@@ -157,3 +163,28 @@ def get_tier_summary(candidates: List[Candidate]) -> Dict[str, int]:
     ranker = CandidateRanker()
     return ranker.get_tier_summary(candidates)
 
+
+# ---------------------------------------------------------------------------
+# Canonical ordering of qualifications (input of Stage 3)
+# ---------------------------------------------------------------------------
+
+def canonical_order(normalized_skills: List[str], profile: str) -> List[str]:
+    """
+    Sort normalized qualifications in the order defined by a profile pattern.
+
+    Qualifications outside the profile alphabet are dropped and duplicates are
+    removed, so the result does not depend on how the candidate wrote the
+    résumé. Example (Full Stack Developer):
+
+        [GIT, NODE_JS, JAVASCRIPT, POSTGRESQL, REACT]
+        -> [JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT]
+    """
+    pattern = get_pattern(profile)
+    position = {skill: i for i, skill in enumerate(pattern.alphabet)}
+    relevant = {s for s in normalized_skills if s in position}
+    return sorted(relevant, key=position.get)
+
+
+def canonical_orders(normalized_skills: List[str]) -> Dict[str, List[str]]:
+    """Canonical sequence of the candidate for each of the four profiles."""
+    return {key: canonical_order(normalized_skills, key) for key in PATTERNS}
