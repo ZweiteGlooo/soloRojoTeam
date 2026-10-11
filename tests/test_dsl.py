@@ -179,3 +179,43 @@ class TestGenerator:
 
     def test_no_name(self):
         assert parse(to_dsl({"name": None}, [], recognize_all([]))).name == "Unknown candidate"
+
+
+class TestRender:
+    from resumelens import render as module
+
+    def test_html_document(self):
+        html = self.module.render(FULL, "html")
+        assert html.startswith("<!DOCTYPE html>")
+        assert "<h1>Peter Benjamin Parker</h1>" in html
+        assert 'href="mailto:peter.parker@dailybugle.com"' in html
+        assert 'href="https://github.com/spidey-dev"' in html
+        assert '<span class="badge accepted">ACCEPTED</span>' in html
+        assert "missing PROCESSING" in html
+
+    def test_html_escapes_text(self):
+        html = self.module.render(MINIMAL.replace("Wednesday Addams", "<b>Wed</b>"), "html")
+        assert "<b>Wed</b>" not in html and "&lt;b&gt;Wed&lt;/b&gt;" in html
+
+    def test_markdown(self):
+        md = self.module.render(FULL, "md")
+        assert md.startswith("# Peter Benjamin Parker")
+        assert "**Accepted profiles:** Backend Developer" in md
+        assert "| Backend Developer | ✅ ACCEPTED | JAVA SPRING_BOOT REST MYSQL GIT |" in md
+        assert "- 1 year: intern" in md
+
+    def test_optional_sections_are_omitted(self):
+        md = self.module.render(MINIMAL, "md")
+        assert "## Contact" not in md and "## Education" not in md and "## Skills" in md
+
+    def test_invalid_profile_is_not_rendered(self):
+        with pytest.raises(ProfileError):
+            self.module.render(MINIMAL.replace("ACCEPTED", "MAYBE"))
+
+    def test_unknown_format(self):
+        with pytest.raises(ValueError):
+            self.module.render(MINIMAL, "pdf")
+
+    def test_render_file(self, tmp_path):
+        out = self.module.render_file(EXAMPLES / "valid" / "wednesday_addams.rlp", tmp_path / "w.md", "md")
+        assert "Full Stack Developer" in out.read_text(encoding="utf-8")
