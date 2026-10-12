@@ -8,7 +8,7 @@
 
 | Name | Student ID | GitHub user |
 |------|-----------|-------------|
-| Gloribeth Renteria | A00 | ZweiteGlooo |
+| Gloribeth Renteria | A00410043 | ZweiteGlooo |
 | Valentina Tangarife | A00411935 | valentangarife |
 | Dayanna Fernández Núñez | A00403756| Dayanna-Fernandez |
 
